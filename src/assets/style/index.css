@@ -1,0 +1,43 @@
+.container {
+    max-width: 1200px;
+    width: 100%;
+    margin: auto;
+}
+
+.posts {
+    border: 1px solid black;
+    list-style-position: inside;
+}
+.comments li {
+    display: flex;
+    justify-content: space-between;
+    width: 200px;
+}
+
+.lists {
+    display: flex;
+}
+
+.lists .list {
+    max-width: 500px;
+    width: 100%;
+}
+
+.lists button {
+    justify-content: center;
+}
+
+.list ul li {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.list ul li button {
+    height: 20px;
+}
+
+.disabled {
+    color: red
+}
+

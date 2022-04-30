@@ -1,7 +1,7 @@
 import React, {Component} from "react";
 import data from "../../data"
 import Posts from "../posts";
-import List from "../list1";
+import List from "../list";
 
 class Main extends Component {
     constructor() {
@@ -11,14 +11,13 @@ class Main extends Component {
 
     addHighestAverage = () => {
         const {data} = this.state;
+
         const averages = data.map(data => {
-            let sum = 0;
+            let sum;
             if (!data.disabled) {
-                for (let i = 0; i < data.comments.length; i++) {
-                    sum += data.comments[i].rate
-                }
+                sum = data.comments.reduce((acc, com) => acc += com.rate, 0)
             }
-            return sum/data.comments.length
+            return sum/data.comments.length;
         })
 
         let maxAverage = averages[0];
@@ -30,21 +29,40 @@ class Main extends Component {
                 maxAverage = averages[i]
             }
         }
+        
         data[maxAverageIndex].disabled = true;
+
+        this.setState({data});
 
         return {maxAverageIndex, maxAverage}
         
     }
 
+    removeColumn = (id) => {
+        const {data} = this.state;
+
+        data.map(data => {
+            if (data.id === id) {
+                data.disabled = false;
+            }
+            return data;
+        })
+
+        this.setState({data})
+    }
+
 
 
     render() {
+
+        const {data} = this.state;
+
         return (
             <div className="container">
                 <Posts data={data} />
                 <div className="lists">
-                    <List data={data} addHighestAverage={this.addHighestAverage}  />
-                    <List data={data} addHighestAverage={this.addHighestAverage}  />
+                    <List data={data} addHighestAverage={this.addHighestAverage} removeColumn={this.removeColumn} />
+                    <List data={data} addHighestAverage={this.addHighestAverage} removeColumn={this.removeColumn} />
                 </div>
             </div>
         )

@@ -11,7 +11,8 @@
 .comments li {
     display: flex;
     justify-content: space-between;
-    width: 200px;
+    max-width: 1000px;
+    width: 100%;
 }
 
 .lists {
@@ -38,6 +39,6 @@
 }
 
 .disabled {
-    color: red
+    color: grey
 }
 

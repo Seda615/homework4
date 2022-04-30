@@ -2,14 +2,9 @@ import React, {Component} from "react";
 
 class Posts extends Component {
 
-    constructor(props) {
-        super()
-        this.state = {posts: props.data}
-    }
-
     render() {
 
-        const {posts} = this.state;
+        const posts = this.props.data;
 
         return (
             <div>
@@ -17,7 +12,7 @@ class Posts extends Component {
                     {posts.map(post => (
                         <li key={post.id} className="posts"  >
                             {post.name}
-                            <ol className={"comments"} style={{ color: post.disabled ? 'red' : 'black'}}> 
+                            <ol className={`${post.disabled ? "disabled" : "" } comments`}> 
                                 {post.comments.map((comment, i) => (
                                     <li key={i}><p>{comment.comment}</p><p>{comment.rate}</p></li>
                                 ))}

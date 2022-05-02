@@ -1,68 +1,154 @@
 import React, {Component} from "react";
+import { deepClone } from "../../utility/posts";
 import data from "../../data"
 import Posts from "../posts";
 import List from "../list";
 
+const pageSizeOptions = [2, 3, 4, 5];
+
 class Main extends Component {
     constructor() {
         super()
-        this.state = {data}
+        this.state = {
+            items: data,
+            currentPosts: [],
+            currentPage: 1,
+            pages: [],
+            postsPerPage: 2,
+            replyCount: {}
+        }
+    }
+
+    componentDidMount() {
+        const {postsPerPage, items} = this.state;
+        const indexOfLastPost = this.state.currentPage * postsPerPage;
+        const indexOfFirstPost = indexOfLastPost - postsPerPage;
+
+        const totalPosts= this.state.items.length;
+        const pageNumber = [];
+        const pageCount = (Math.ceil(totalPosts / postsPerPage));
+        for (let i = 1; i <= pageCount; i++) {
+            pageNumber.push(i);
+        }
+        this.setState({currentPosts: items.slice(indexOfFirstPost, indexOfLastPost), pages: pageNumber});
     }
 
     addHighestAverage = () => {
-        const {data} = this.state;
+        const {items} = this.state;
 
-        const averages = data.map(data => {
-            let sum;
-            if (!data.disabled) {
-                sum = data.comments.reduce((acc, com) => acc += com.rate, 0)
-            }
-            return sum/data.comments.length;
+        const averages = items.map(item => {
+            let sum = item.comments.reduce((acc, com) => acc += com.rate, 0);
+
+            return sum/item.comments.length;
         })
 
         let maxAverage = averages[0];
         let maxAverageIndex;
 
         for (let i = 0; i < averages.length; i++) {
-            if (maxAverage < averages[i]) {
-                maxAverageIndex = i;
+            if (maxAverage <= averages[i] && !items[i].disabled) {
                 maxAverage = averages[i]
+                maxAverageIndex = i;
             }
         }
-        
-        data[maxAverageIndex].disabled = true;
+        if  (maxAverageIndex !== undefined) {
+            items[maxAverageIndex].disabled = true;
+        }
 
-        this.setState({data});
+        this.setState({items});
 
         return {maxAverageIndex, maxAverage}
-        
     }
 
     removeColumn = (id) => {
-        const {data} = this.state;
+        const {items} = this.state;
 
-        data.map(data => {
-            if (data.id === id) {
-                data.disabled = false;
+        items.map(item => {
+            if (item.id === id) {
+                item.disabled = false;
             }
-            return data;
+            return item;
         })
 
-        this.setState({data})
+        this.setState({items})
     }
 
+    changePageSize = (e) => {
+        e.preventDefault();
+        const perPage = +e.target.value;
+        const indexOfPrevFirstPost = (this.state.currentPage - 1) * this.state.postsPerPage + 1;
+        const currentPage = Math.ceil((indexOfPrevFirstPost) / perPage);
+        const indexOfLastPost = currentPage * perPage;
+        const indexOfFirstPost = indexOfLastPost - perPage;
+        const currentItems = this.state.items.slice(indexOfFirstPost, indexOfLastPost);
+        const pageCount = Math.ceil(this.state.items.length / perPage);
+        const pages = [];
+        for (let i = 1; i <= pageCount; i++) {
+            pages.push(i);
+        }
+        this.setState({postsPerPage: perPage, currentPosts: currentItems, pages, currentPage})
+    }
 
+    changePage = (page) => {
+
+        const {postsPerPage, items} = this.state;
+
+        const indexOfLastPost = page * postsPerPage;
+        const indexOfFirstPost = indexOfLastPost - postsPerPage;
+
+        this.setState({currentPosts: items.slice(indexOfFirstPost, indexOfLastPost), currentPage: page});
+    }
+
+    addComment = (id, comment, rate) => {
+
+        const {items, currentPosts} = this.state;
+
+        const posts = deepClone(items);
+        const currentItems = deepClone(currentPosts);
+
+        const index = posts.findIndex(post => post.id === id);
+        
+        posts[index].comments.push({comment, rate});
+        currentItems[index].comments.push({comment, rate})
+
+        this.setState({currentPosts: currentItems, items: posts});
+    }
+
+    addReply = (postId, comIndex, reply) => {
+
+        const items = deepClone(this.state.items);
+        const currentPosts = deepClone(this.state.currentPosts);
+        const postIndex = currentPosts.findIndex(currentPost => currentPost.id === postId);
+
+        currentPosts[postIndex].comments[comIndex].reply = reply;
+        items[postIndex].comments[comIndex].reply = reply;
+
+        this.setState({items, currentPosts})
+    }
 
     render() {
 
-        const {data} = this.state;
+        const {items, currentPosts, pages, postsPerPage, currentPage, replyCount} = this.state;
 
         return (
             <div className="container">
-                <Posts data={data} />
+                <Posts
+                    currentPosts={currentPosts}
+                    postsPerPage={postsPerPage}
+                    totalPosts={items.length}
+                    pages={pages}
+                    replyCount={replyCount}
+                    setReplyCount={(count) => this.setState({replyCount: count})}
+                    pageSizeOptions={pageSizeOptions}
+                    changePageSize={this.changePageSize}
+                    currentPage={currentPage}
+                    changePage={this.changePage}
+                    addComment={this.addComment}
+                    addReply={this.addReply}
+                />
                 <div className="lists">
-                    <List data={data} addHighestAverage={this.addHighestAverage} removeColumn={this.removeColumn} />
-                    <List data={data} addHighestAverage={this.addHighestAverage} removeColumn={this.removeColumn} />
+                    <List data={items} addHighestAverage={this.addHighestAverage} removeColumn={this.removeColumn} />
+                    <List data={items} addHighestAverage={this.addHighestAverage} removeColumn={this.removeColumn} />
                 </div>
             </div>
         )

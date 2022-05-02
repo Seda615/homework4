@@ -11,10 +11,10 @@ class List extends Component {
 
         const {data} = this.props;
 
-        const {maxAverageIndex, maxAverage} = this.props.addHighestAverage()
-
-        this.setState({list: [...this.state.list, {...data[maxAverageIndex], rateAverage: maxAverage}]})
-
+        const {maxAverageIndex, maxAverage} = this.props.addHighestAverage();
+        if (maxAverageIndex !== undefined) {
+            this.setState({list: [...this.state.list, {...data[maxAverageIndex], rateAverage: maxAverage}]})
+        }
     }
 
     sort = () => {

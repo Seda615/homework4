@@ -3,6 +3,7 @@ import { deepClone } from "../../utility/posts";
 import data from "../../data"
 import Posts from "../posts";
 import List from "../list";
+import User from "../User";
 
 const pageSizeOptions = [2, 3, 4, 5];
 
@@ -107,7 +108,7 @@ class Main extends Component {
         const currentItems = deepClone(currentPosts);
 
         const index = posts.findIndex(post => post.id === id);
-        
+
         posts[index].comments.push({comment, rate});
         currentItems[index].comments.push({comment, rate})
 
@@ -131,25 +132,28 @@ class Main extends Component {
         const {items, currentPosts, pages, postsPerPage, currentPage, replyCount} = this.state;
 
         return (
-            <div className="container">
-                <Posts
-                    currentPosts={currentPosts}
-                    postsPerPage={postsPerPage}
-                    totalPosts={items.length}
-                    pages={pages}
-                    replyCount={replyCount}
-                    setReplyCount={(count) => this.setState({replyCount: count})}
-                    pageSizeOptions={pageSizeOptions}
-                    changePageSize={this.changePageSize}
-                    currentPage={currentPage}
-                    changePage={this.changePage}
-                    addComment={this.addComment}
-                    addReply={this.addReply}
-                />
-                <div className="lists">
-                    <List data={items} addHighestAverage={this.addHighestAverage} removeColumn={this.removeColumn} />
-                    <List data={items} addHighestAverage={this.addHighestAverage} removeColumn={this.removeColumn} />
+            <div>
+                <div className="container">
+                    <Posts
+                        currentPosts={currentPosts}
+                        postsPerPage={postsPerPage}
+                        totalPosts={items.length}
+                        pages={pages}
+                        replyCount={replyCount}
+                        setReplyCount={(count) => this.setState({replyCount: count})}
+                        pageSizeOptions={pageSizeOptions}
+                        changePageSize={this.changePageSize}
+                        currentPage={currentPage}
+                        changePage={this.changePage}
+                        addComment={this.addComment}
+                        addReply={this.addReply}
+                    />
+                    <div className="lists">
+                        <List data={items} addHighestAverage={this.addHighestAverage} removeColumn={this.removeColumn} />
+                        <List data={items} addHighestAverage={this.addHighestAverage} removeColumn={this.removeColumn} />
+                    </div>
                 </div>
+                <User />
             </div>
         )
     }

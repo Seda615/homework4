@@ -42,9 +42,8 @@ class Comments extends Component {
                 .filter(comment => comment.comment.includes(searchByComment))
                 .map((comment, i) => (
                     <li key={i}>
-                        <p className={this.rateColored(comment.rate)}>{comment.comment}</p>
-                        <p className={this.rateColored(comment.rate)}>{comment.rate}</p>
-                        <p>&#128512;</p>
+                        <p className={this.rateColored(comment.rate)} id="comment">{comment.comment}</p>
+                        <p className={this.rateColored(comment.rate)}>{comment.rate}&#128512;</p>
                         {comment.reply && <span>{comment.reply}</span>}
                         
                         {(openReplyInput === `${id}-${i}`) && 

@@ -1,60 +1,56 @@
 import React, {Component} from "react";
 import schema from "../../Schema";
 import ErrorMessage from "./Error";
+import Input from "./Input";
 
-// TODO: add ErrorMessage
 
 class User extends Component {
     constructor(props) {
         super(props);
         this.state = {
-            firstName: "",
-            email: "",
-            age: "",
-            passport: "",
-            website: "",
-            phoneNumbers: "",
+            user: {
+                firstName: "",
+                email: "",
+                age: "",
+                passport: "",
+                website: "",
+                phoneNumbers: "",  
+            },
             errors: {}
         }
     }
 
     validate = (e) => {
         e.preventDefault()
-        const {firstName, email, age, passport, website, phoneNumbers} = this.state;
-        const errors = schema.validate({firstName, email, age, passport, website, phoneNumbers: phoneNumbers.split(" ")});
-        this.setState({errors});
+        const {user} = this.state;
+        const {phoneNumbers, age} = user;
+        const errors = schema.validate({...user, age: +age, phoneNumbers: phoneNumbers.split(" ")});
+        this.setState({errors, user: {firstName: "", email: "", age: "", passport: "", website: "", phoneNumbers: ""}});
     }
 
     handleChange = (e) => {
-        this.setState({[e.target.name]: e.target.value})
+        this.setState({user: {...this.state.user,[e.target.name]: e.target.value}});
     }
 
     render() {
-
-        const {firstname, email, age, passport, website, phoneNumbers, errors} = this.state;
-
+        const {user, errors} = this.state;
+        const {firstName, email, age, passport, website, phoneNumbers} = user;
 
         return (
             <form action="#" onSubmit={this.validate} className="form">
-                <label>Firstname</label>
-                <input type="text" name="firstName" value={firstname} onChange={this.handleChange} />
+                <Input type="text" name="firstName" value={firstName} onChange={this.handleChange} />
                 <ErrorMessage error={errors.firstName} />
-                <label>Email</label>
-                <input type="text" name="email" value={email} onChange={this.handleChange} />
+                <Input type="text" name="email" value={email} onChange={this.handleChange} />
                 <ErrorMessage error={errors.email} />
-                <label>Age</label>
-                <input type="text" name="age" value={age} onChange={(e) => this.setState({age: +e.target.value})} />
+                <Input type="text" name="age" value={age} onChange={this.handleChange} />
                 <ErrorMessage error={errors.age} />
-                <label>Passport</label>
-                <input type="text" name="passport" value={passport} onChange={this.handleChange} />
+                <Input type="text" name="passport" value={passport} onChange={this.handleChange} />
                 <ErrorMessage error={errors.passport} />
-                <label>Website</label>
-                <input type="text" name="website" value={website} onChange={this.handleChange} />
+                <Input type="text" name="website" value={website} onChange={this.handleChange} />
                 <ErrorMessage error={errors.website} />
-                <label>Phone Numbers</label>
-                <input type="text" name="phoneNumbers" value={phoneNumbers} onChange={this.handleChange} />
+                <Input type="text" name="phoneNumbers" value={phoneNumbers} onChange={this.handleChange} />
                 <ErrorMessage error={errors.phoneNumbers} />
-                <input type="submit" value="submit" />
+                <Input type="submit" value="submit" className="button" />
             </form>
         )
     }

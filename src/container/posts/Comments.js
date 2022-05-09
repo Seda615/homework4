@@ -11,7 +11,8 @@ class Comments extends Component {
 
     addReply = (e, postId, comIndex) => {
         e.preventDefault();
-        const {replyCount, reply} = this.state;
+        const {reply} = this.state;
+        const {replyCount} =this.props;
         if (reply) {
             this.props.addReply(postId, comIndex, reply);
             this.setState({ openReplyInput: 0, reply: ""});
@@ -49,11 +50,15 @@ class Comments extends Component {
                         {(openReplyInput === `${id}-${i}`) && 
                             <form action="#">
                                 <input value={reply} onChange={(e) => this.setState({reply: e.target.value})} />
-                                <button onClick={(e) => this.addReply(e, id, i)}>ok</button>
+                                <button onClick={(e) => this.addReply(e, id, i)} className="button">ok</button>
                             </form>
                         }
                         {!(openReplyInput === `${id}-${i}` || replyCount[`${post.id}-${i}`]) && 
-                            <button onClick={() =>this.setState({openReplyInput: `${id}-${i}`})}>reply</button>
+                            <button
+                                onClick={() =>this.setState({openReplyInput: `${id}-${i}`})}
+                                className="button"
+                            >reply
+                            </button>
                         }
                     </li>
                 ))}

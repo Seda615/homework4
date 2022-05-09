@@ -1,4 +1,4 @@
-import Main from "./container/main";
+import Main from "./container/Main";
 import "./assets/style/index.css";
 
 function App() {

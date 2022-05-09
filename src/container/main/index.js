@@ -1,8 +1,8 @@
 import React, {Component} from "react";
 import { deepClone } from "../../utility/posts";
 import data from "../../data"
-import Posts from "../posts";
-import List from "../list";
+import Posts from "../Posts";
+import List from "../List";
 import User from "../User";
 
 const pageSizeOptions = [2, 3, 4, 5];
@@ -21,11 +21,11 @@ class Main extends Component {
     }
 
     componentDidMount() {
-        const {postsPerPage, items} = this.state;
-        const indexOfLastPost = this.state.currentPage * postsPerPage;
+        const {postsPerPage, items, currentPage} = this.state;
+        const indexOfLastPost = currentPage * postsPerPage;
         const indexOfFirstPost = indexOfLastPost - postsPerPage;
 
-        const totalPosts= this.state.items.length;
+        const totalPosts= items.length;
         const pageNumber = [];
         const pageCount = (Math.ceil(totalPosts / postsPerPage));
         for (let i = 1; i <= pageCount; i++) {
@@ -75,19 +75,17 @@ class Main extends Component {
     }
 
     changePageSize = (e) => {
-        e.preventDefault();
+        const {currentPage, postsPerPage, items} = this.state;
         const perPage = +e.target.value;
-        const indexOfPrevFirstPost = (this.state.currentPage - 1) * this.state.postsPerPage + 1;
-        const currentPage = Math.ceil((indexOfPrevFirstPost) / perPage);
-        const indexOfLastPost = currentPage * perPage;
-        const indexOfFirstPost = indexOfLastPost - perPage;
-        const currentItems = this.state.items.slice(indexOfFirstPost, indexOfLastPost);
-        const pageCount = Math.ceil(this.state.items.length / perPage);
+        const indexOfPrevFirstPost = (currentPage - 1) * postsPerPage + 1;
+        const nextCurrentPage = Math.ceil((indexOfPrevFirstPost) / perPage);
+        const currentItems = items.slice(currentPage * perPage -perPage, currentPage * perPage);
+        const pageCount = Math.ceil(items.length / perPage);
         const pages = [];
         for (let i = 1; i <= pageCount; i++) {
             pages.push(i);
         }
-        this.setState({postsPerPage: perPage, currentPosts: currentItems, pages, currentPage})
+        this.setState({postsPerPage: perPage, currentPosts: currentItems, pages, currentPage: nextCurrentPage})
     }
 
     changePage = (page) => {

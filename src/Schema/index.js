@@ -3,43 +3,93 @@ class Schema {
         this.valid = valid
     }
 
+    required = (val) => {
+        return val.length  !== 0;
+    }
+
+    min = (val, min) => {
+        return val.length >= min;
+    }
+
+    max = (val, max) => {
+        return val.length <= max;
+    }
+
+    url = (val) => {
+        const validUrlRegExp = /[(http(s)?):\/\/(www\.)?a-zA-Z0-9@:%._\+~#=]{2,256}\.[a-z]{2,6}\b([-a-zA-Z0-9@:%_\+.~#?&//=]*)/ig;
+        return validUrlRegExp.test(val);
+    }
+
+    email = (val) => {
+        const validEmailregExp = /^[\w-\.]+@([\w-]+\.)+[\w-]{2,4}$/;
+        return validEmailregExp.test(val);
+    }
+
+    phone = (val) => {
+        for (let i = 0; i < val.length; i++) {
+            if (typeof +val !== 'number' || isNaN(val)) {
+                return false
+            }
+        }
+        return true;
+    }
+
+    string = (val) => {
+        return typeof val === 'string';
+    }
+
+    number = (val) => {
+        return typeof val === 'number' && !isNaN(val);
+    }
+
+    array_string = (values) => {
+        if (Array.isArray(values) && values.length !== 0) {
+            for (let value of values) {
+                if (typeof value !== 'string') {
+                    return false;
+                }
+            }
+        } else {
+            return false;
+        }
+        return true;
+    }
+
     validate(payload) {
 
-        const validEmailregExp = /^[\w-\.]+@([\w-]+\.)+[\w-]{2,4}$/;
-        const validUrlRegExp = /[(http(s)?):\/\/(www\.)?a-zA-Z0-9@:%._\+~#=]{2,256}\.[a-z]{2,6}\b([-a-zA-Z0-9@:%_\+.~#?&//=]*)/ig;
-
-        const {firstName, email, age, passport, website, phoneNumbers} = this.valid;
-        const passportMessage = passport.validators[1](payload.passport);
-        const passportValid = passportMessage.validate()
         const ErrorMessage = {};
+        const names = Object.keys(this.valid);
 
-        if (typeof payload.firstName !== firstName.type || payload.firstName.length < 3) {
-            ErrorMessage.firstName = firstName.message;
-        }
+        for (let name of names) {
 
-        if (!(typeof payload.email === email.type && validEmailregExp.test(payload.email))) {
-            ErrorMessage.email = 'Incorect email';
-        }
+            const validName = this.valid[name];
+            const validators = Array.isArray(validName.validators) ? validName.validators : [validName.validators];
+            const type = validName.type;
+            const typeFunc = type.replace(/\[/, '_').replace(/\]/, '');
 
-        if (!(typeof payload.age === age.type && payload.age.length !== 0)) {
-            ErrorMessage.age = 'age is required';
-        }
+            if (this[typeFunc](payload[name])) {
+                for (let validator of validators) {
+                    const validArray = typeof validator === 'string' ? validator.split(':') : validator;
+                    
+                    if (typeof validator === 'function') {
+                        const {message, validate} = validator(payload[name])
 
-        if (typeof payload.passport !== passport.type || payload.passport.length > 9 || !passportValid) {
-            ErrorMessage.passport = passport.message;
-        }
+                        if (!validate()) {
+                            ErrorMessage[name] = message;
+                        }
 
-        if (!(typeof payload.website === website.type && validUrlRegExp.test(payload.website))) {
-            ErrorMessage.website = 'Incorect website';
-        }
-        
-        if (!Array.isArray(payload.phoneNumbers)) {
-            ErrorMessage.phoneNumbers = 'Invalid Phone Number'
-        } else {
-            for (let i = 0; i < payload.phoneNumbers.length; i++) {
-                if (typeof payload.phoneNumbers[i] !== 'string') {
-                    ErrorMessage.phoneNumbers = 'Invalid phone number';
+                    } else {
+
+                        if (!this[validArray[0]](payload[name], validArray[1])) {
+                            const message = validName.message;
+                            ErrorMessage[name] = message ? message.replace(/{min}/, validArray[1]) : `Invalide ${name}`;
+                        }
+
+                    }
                 }
+
+            } else {
+                ErrorMessage[name] = `${name} must be ${type}`;
             }
         }
       return ErrorMessage;
@@ -51,14 +101,9 @@ const passportValidator = (extra, message = 'Default error message') => {
     return {
 
       validate: () => {
-
           const passportRegexp = /^[A-Z][A-Z][0-9]/;
 
-          if (passportRegexp.test(extra)) {
-              return true;
-          } else {
-              return false;
-          }
+          return passportRegexp.test(extra)
       },
 
       message

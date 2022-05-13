@@ -2,11 +2,6 @@ import React, {Component} from "react";
 import schema from "../../Schema";
 import ErrorMessage from "./Error";
 import Input from "./Input";
-import Email from "./Email";
-import Numeric from "./Numeric";
-import Passport from "./Passport";
-import Url from "./Url";
-import PhoneNumbers from "./PhoneNumbers";
 import Button from "./Button";
 
 class User extends Component {
@@ -40,26 +35,25 @@ class User extends Component {
     render() {
         const {user, errors} = this.state;
         const {firstName, email, age, passport, website, phoneNumbers} = user;
-        console.log(user)
 
         return (
             <form action="#" onSubmit={this.validate} className="form">
                 <Input type="text" name="firstName" value={firstName} onChange={this.handleChange} />
                 <ErrorMessage error={errors.firstName} />
 
-                <Email name="email" value={email} onChange={this.handleChange} />
+                <Input type="email" name="email" value={email} onChange={this.handleChange} />
                 <ErrorMessage error={errors.email} />
 
-                <Numeric name="age" value={age} onChange={this.handleChange} />
+                <Input type="number" name="age" value={age} onChange={this.handleChange} />
                 <ErrorMessage error={errors.age} />
 
-                <Passport name="passport" value={passport} onChange={this.handleChange} />
+                <Input type="text" name="passport" value={passport} onChange={this.handleChange} />
                 <ErrorMessage error={errors.passport} />
 
-                <Url name="website" value={website} onChange={this.handleChange} />
+                <Input type="text" name="website" value={website} onChange={this.handleChange} />
                 <ErrorMessage error={errors.website} />
 
-                <PhoneNumbers name="phoneNumbers" value={phoneNumbers} onChange={this.handleChange} />
+                <Input type="text" name="phoneNumbers" value={phoneNumbers} onChange={this.handleChange} />
                 <ErrorMessage error={errors.phoneNumbers} />
 
                 <Button type="submit" value="submit" className="button" />

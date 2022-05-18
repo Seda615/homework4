@@ -11,11 +11,10 @@ class Comments extends Component {
 
     addReply = (e, postId, comIndex) => {
         e.preventDefault();
-        const {replyCount, reply} = this.state;
+        const {reply} = this.state;
         if (reply) {
             this.props.addReply(postId, comIndex, reply);
             this.setState({ openReplyInput: 0, reply: ""});
-            this.props.setReplyCount({...replyCount, [`${postId}-${comIndex}`]: 1})
         }
     }
 

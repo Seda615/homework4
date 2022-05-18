@@ -1,5 +1,4 @@
 import React, {Component} from "react";
-import { deepClone } from "../../utility/posts";
 import data from "../../data"
 import Posts from "../Posts";
 import List from "../List";
@@ -11,57 +10,34 @@ class Main extends Component {
         super()
         this.state = {
             items: data,
-            currentPosts: [],
             currentPage: 1,
-            pages: [],
+            pages: [1, 2, 3, 4, 5],
             postsPerPage: 2,
             replyCount: {}
         }
     }
 
-    componentDidMount() {
-        const {postsPerPage, items} = this.state;
+    pagePosts() {
+
+        const postsPerPage = this.state.postsPerPage;
+        const currentItems = [...this.state.items]
         const indexOfLastPost = this.state.currentPage * postsPerPage;
         const indexOfFirstPost = indexOfLastPost - postsPerPage;
 
-        const totalPosts= this.state.items.length;
-        const pageNumber = [];
-        const pageCount = (Math.ceil(totalPosts / postsPerPage));
-        for (let i = 1; i <= pageCount; i++) {
-            pageNumber.push(i);
-        }
-        this.setState({currentPosts: items.slice(indexOfFirstPost, indexOfLastPost), pages: pageNumber});
+        return currentItems.slice(indexOfFirstPost, indexOfLastPost)
     }
 
-    addHighestAverage = () => {
-        const {items} = this.state;
+    disableMaxAverage = (maxAverageIndex) => {
 
-        const averages = items.map(item => {
-            let sum = item.comments.reduce((acc, com) => acc += com.rate, 0);
-
-            return sum/item.comments.length;
-        })
-
-        let maxAverage = averages[0];
-        let maxAverageIndex;
-
-        for (let i = 0; i < averages.length; i++) {
-            if (maxAverage <= averages[i] && !items[i].disabled) {
-                maxAverage = averages[i]
-                maxAverageIndex = i;
-            }
-        }
+        const items = [...this.state.items];
         if  (maxAverageIndex !== undefined) {
             items[maxAverageIndex].disabled = true;
         }
-
         this.setState({items});
-
-        return {maxAverageIndex, maxAverage}
     }
 
     removeColumn = (id) => {
-        const {items} = this.state;
+        const items = [...this.state.items];
 
         items.map(item => {
             if (item.id === id) {
@@ -75,60 +51,46 @@ class Main extends Component {
 
     changePageSize = (e) => {
         e.preventDefault();
+
+        const {currentPage, postsPerPage} = this.state;
+        const items = [...this.state.items];
+
         const perPage = +e.target.value;
-        const indexOfPrevFirstPost = (this.state.currentPage - 1) * this.state.postsPerPage + 1;
-        const currentPage = Math.ceil((indexOfPrevFirstPost) / perPage);
-        const indexOfLastPost = currentPage * perPage;
-        const indexOfFirstPost = indexOfLastPost - perPage;
-        const currentItems = this.state.items.slice(indexOfFirstPost, indexOfLastPost);
-        const pageCount = Math.ceil(this.state.items.length / perPage);
+        const indexOfPrevFirstPost = (currentPage - 1) * postsPerPage + 1;
+        const pageCount = Math.ceil(items.length / perPage);
         const pages = [];
         for (let i = 1; i <= pageCount; i++) {
             pages.push(i);
         }
-        this.setState({postsPerPage: perPage, currentPosts: currentItems, pages, currentPage})
+        this.setState({postsPerPage: perPage, pages, currentPage: Math.ceil((indexOfPrevFirstPost) / perPage)});
     }
 
     changePage = (page) => {
-
-        const {postsPerPage, items} = this.state;
-
-        const indexOfLastPost = page * postsPerPage;
-        const indexOfFirstPost = indexOfLastPost - postsPerPage;
-
-        this.setState({currentPosts: items.slice(indexOfFirstPost, indexOfLastPost), currentPage: page});
+        this.setState({currentPage: page});
     }
 
     addComment = (id, comment, rate) => {
 
-        const {items, currentPosts} = this.state;
-
-        const posts = deepClone(items);
-        const currentItems = deepClone(currentPosts);
-
-        const index = posts.findIndex(post => post.id === id);
+        const items = [...this.state.items];
+        const index = items.findIndex(post => post.id === id);
         
-        posts[index].comments.push({comment, rate});
-        currentItems[index].comments.push({comment, rate})
-
-        this.setState({currentPosts: currentItems, items: posts});
+        items[index].comments.push({comment, rate});
+        this.setState({items: items});
     }
 
-    addReply = (postId, comIndex, reply) => {
+    addReply = (postId, comIndex, reply) => { 
+        const items = [...this.state.items];
+        const postIndex = items.findIndex(currentPost => currentPost.id === postId);
 
-        const items = deepClone(this.state.items);
-        const currentPosts = deepClone(this.state.currentPosts);
-        const postIndex = currentPosts.findIndex(currentPost => currentPost.id === postId);
-
-        currentPosts[postIndex].comments[comIndex].reply = reply;
         items[postIndex].comments[comIndex].reply = reply;
 
-        this.setState({items, currentPosts})
+        this.setState({items, replyCount: {...this.state.replyCount, [`${postId}-${comIndex}`]: 1}})
     }
 
     render() {
 
-        const {items, currentPosts, pages, postsPerPage, currentPage, replyCount} = this.state;
+        const {items, pages, postsPerPage, currentPage, replyCount} = this.state;
+        const currentPosts = this.pagePosts();
 
         return (
             <div className="container">
@@ -138,7 +100,6 @@ class Main extends Component {
                     totalPosts={items.length}
                     pages={pages}
                     replyCount={replyCount}
-                    setReplyCount={(count) => this.setState({replyCount: count})}
                     pageSizeOptions={pageSizeOptions}
                     changePageSize={this.changePageSize}
                     currentPage={currentPage}
@@ -147,8 +108,18 @@ class Main extends Component {
                     addReply={this.addReply}
                 />
                 <div className="lists">
-                    <List data={items} addHighestAverage={this.addHighestAverage} removeColumn={this.removeColumn} />
-                    <List data={items} addHighestAverage={this.addHighestAverage} removeColumn={this.removeColumn} />
+                    <List
+                        data={items}
+                        getMaxAverage={this.getMaxAverage}
+                        removeColumn={this.removeColumn}
+                        disableMaxAverage={this.disableMaxAverage}
+                    />
+                    <List
+                        data={items}
+                        getMaxAverage={this.getMaxAverage}
+                        removeColumn={this.removeColumn}
+                        disableMaxAverage={this.disableMaxAverage}
+                    />
                 </div>
             </div>
         )

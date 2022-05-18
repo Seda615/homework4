@@ -7,19 +7,44 @@ class List extends Component {
         this.state = {list: []}
     }
 
+    calculateItemsAverage = () => {
+        let items = [...this.props.data];
+        const averages = items.map(item => {
+            let sum = item.comments.reduce((acc, com) => acc += com.rate, 0)
+
+            return sum/item.comments.length;
+        })
+        return averages;
+    }
+
+    getMaxAverage = (items) => {
+        const averages = this.calculateItemsAverage(items);
+        let maxAverage = 0;
+        let maxAverageIndex;
+
+        for (let i = 0; i < averages.length; i++) {
+            if (maxAverage <= averages[i] && !items[i].disabled) {
+                maxAverage = averages[i]
+                maxAverageIndex = i;
+            }
+        }
+        
+        return {maxAverageIndex, maxAverage};
+    }
+
     addHighestAverage = () => {
 
-        const {data} = this.props;
-
-        const {maxAverageIndex, maxAverage} = this.props.addHighestAverage();
+        const data = [...this.props.data];
+        const {maxAverage, maxAverageIndex} = this.getMaxAverage(data);
+        this.props.disableMaxAverage(maxAverageIndex);
+        console.log(maxAverage, maxAverageIndex)
         if (maxAverageIndex !== undefined) {
             this.setState({list: [...this.state.list, {...data[maxAverageIndex], rateAverage: maxAverage}]})
         }
     }
 
     sort = () => {
-        const {list} = this.state;
-
+        let list = [...this.state.list];
         this.setState(list.sort((l1, l2) => l1.rateAverage - l2.rateAverage ))
 
     }

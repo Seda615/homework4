@@ -12,11 +12,9 @@ class Comments extends Component {
     addReply = (e, postId, comIndex) => {
         e.preventDefault();
         const {reply} = this.state;
-        const {replyCount} =this.props;
         if (reply) {
             this.props.addReply(postId, comIndex, reply);
             this.setState({ openReplyInput: 0, reply: ""});
-            this.props.setReplyCount({...replyCount, [`${postId}-${comIndex}`]: 1})
         }
     }
 
@@ -44,20 +42,22 @@ class Comments extends Component {
                 .map((comment, i) => (
                     <li key={i}>
                         <p className={this.rateColored(comment.rate)} id="comment">{comment.comment}</p>
-                        <p className={this.rateColored(comment.rate)}>{comment.rate}&#128512;</p>
+                        <p className={this.rateColored(comment.rate)}>{comment.rate}</p>
+                        <p>&#128512;</p>
                         {comment.reply && <span>{comment.reply}</span>}
                         
                         {(openReplyInput === `${id}-${i}`) && 
                             <form action="#">
                                 <input value={reply} onChange={(e) => this.setState({reply: e.target.value})} />
-                                <button onClick={(e) => this.addReply(e, id, i)} className="button">ok</button>
+                                <button onClick={(e) => this.addReply(e, id, i)}>ok</button>
                             </form>
                         }
                         {!(openReplyInput === `${id}-${i}` || replyCount[`${post.id}-${i}`]) && 
                             <button
                                 onClick={() =>this.setState({openReplyInput: `${id}-${i}`})}
                                 className="button"
-                            >reply
+                            >
+                                reply
                             </button>
                         }
                     </li>

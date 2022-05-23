@@ -1,0 +1,2 @@
+export const DROP_ELEMENT = 'DROP_ELEMENT';
+export const PREVOUS_STATE = 'PREVOUS_STATE';

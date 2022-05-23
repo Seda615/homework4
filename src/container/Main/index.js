@@ -3,6 +3,7 @@ import data from "../../data"
 import Posts from "../Posts";
 import List from "../List";
 import User from "../User";
+import DragAndDrop from "../DragAndDrop";
 
 const pageSizeOptions = [2, 3, 4, 5];
 
@@ -125,6 +126,7 @@ class Main extends Component {
                     </div>
                 </div>
                 <User />
+                <DragAndDrop />
             </div>
         )
     }

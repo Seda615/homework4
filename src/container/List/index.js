@@ -71,7 +71,7 @@ class List extends Component {
     }
 
     removeColumn = (index, id) => {
-        const {list} = this.state;
+        const list = {...this.state.list};
 
         this.setState(list.splice(index, 1));
         this.props.removeColumn(id);

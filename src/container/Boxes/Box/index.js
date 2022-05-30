@@ -48,7 +48,6 @@ function Box({dropElements, setOpenButton, id, drop, className, openButton}) {
                 {label && <label>{label}</label>}
                 <element.name
                     type={element.type}
-                    {...{[attributes.name] : attributes.value}}
                     {...attributes}
                     style={style}
                     className="element"
@@ -97,7 +96,7 @@ function Box({dropElements, setOpenButton, id, drop, className, openButton}) {
                             </div>
                         ))}
                     </div>
-                    <button onClick={() => addAttribute()} className="button">ok</button>
+                    <button type="button" onClick={() => addAttribute()} className="button">ok</button>
                 </form>
             )
 

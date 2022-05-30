@@ -4,16 +4,14 @@ import Sidebar from "../Sidebar";
 import Boxes from "../Boxes";
 import { dropElement, prevousState } from "../../store/actions";
 import { dropElementsSelector } from "../../store/selectors";
-
-const M = 5;
-const N = 3;
+import { ROW_COUNT, COLUMN_COUNT } from "../../const";
 
 const boxElements = (
     () => {
         let boxElements = [];
-        for (let i = 0; i < M; i++) {
+        for (let i = 0; i < ROW_COUNT; i++) {
             boxElements[i] = [];
-            for (let j = 0; j < N; j++) {
+            for (let j = 0; j < COLUMN_COUNT; j++) {
                 boxElements[i][j] = null
             }
         }
@@ -28,22 +26,17 @@ function DragAndDrop() {
 
     const dispatch = useDispatch();
 
-    const [dragElement, setDragElement] = useState('');
-    const [dragable, setDragable] = useState(false);
+    const [dragElement, setDragElement] = useState({});
 
     const handleStart = (e) => {
         e.stopPropagation();
         setDragElement(e.target);
-        setDragable(true);
     }
 
     const dragEnd = (e) => {
         e.preventDefault();
+        if (dropElements.length !== 0) setDragElement(null);
 
-        const dragelem = e.target;
-        setDragable(false);
-
-        dragelem.className = '';
     }
 
     const isDropable = (i, j) => {
@@ -62,13 +55,13 @@ function DragAndDrop() {
 
         let neibours = {};
 
-        if (i + 1 < M && isDropable(i + 1, j)) {
+        if (i + 1 < ROW_COUNT && isDropable(i + 1, j)) {
             neibours = {...neibours, [`${i + 1}-${j}`]: `${i + 1}-${j}`};
         }
         if (i - 1 >= 0 && isDropable(i - 1, j)) {
             neibours = {...neibours, [`${i - 1}-${j}`]: `${i - 1}-${j}`};
         }
-        if (j + 1 < N && isDropable(i, j + 1)) {
+        if (j + 1 < COLUMN_COUNT && isDropable(i, j + 1)) {
             neibours = {...neibours, [`${i}-${j + 1}`]: `${i}-${j + 1}`};
         }
         if (j - 1 >= 0 && isDropable(i, j - 1)) {
@@ -85,7 +78,8 @@ function DragAndDrop() {
         const neibours = getNeibours(+dropId[0], +dropId[dropId.length - 1]);
 
         dispatch(dropElement({neibours, dropId, dragId}));
-        setDragable(false);
+        setDragElement(null);
+        dragElement.className = '';
     }
 
     const redo = () => {
@@ -97,8 +91,12 @@ function DragAndDrop() {
                 const neibour = getNeibours(+dropElem[i].dropId[0], +dropElem[i].dropId[dropId.length - 1])
                 neibours = {...neibours, ...neibour, [dropId]: dropId}
             }
-
-            neibours = Object.keys(neibours).length === 0 ? {'0-0': 0-0} : neibours;
+            const rowCenter = Math.floor(ROW_COUNT / 2);
+            const columnCenter = Math.floor(COLUMN_COUNT / 2);
+            if (Object.keys(neibours).length === 0) {
+                neibours =  {[`${rowCenter}-${columnCenter}`]: `${rowCenter}-${columnCenter}`};
+                setDragElement('')
+            }
             dispatch(prevousState({dragElement ,neibours}))
         }
     }
@@ -113,7 +111,6 @@ function DragAndDrop() {
                 drop={drop}
                 dragElement={dragElement}
                 boxElements={boxElements}
-                dragable={dragable}
             />
 
             <button onClick={() => redo()} className="button">Redo</button>

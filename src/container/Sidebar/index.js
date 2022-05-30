@@ -12,12 +12,13 @@ function Sidebar({ handleStart, dragEnd}) {
                 <element.name
                     type={element.type}
                     defaultValue={element.value}
+                    className="element"
                 />
             )
         }
 
         return (
-            <element.name type={element.type} >
+            <element.name type={element.type} className="element" >
                 {element.value}
             </element.name>
         )

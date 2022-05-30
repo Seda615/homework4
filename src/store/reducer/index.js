@@ -1,4 +1,5 @@
 import * as actionTypes from '../action-types';
+import { ROW_COUNT, COLUMN_COUNT } from '../../const';
 
 const option = <option value='select'>select</option>
 
@@ -69,10 +70,13 @@ const sidebarElements = [
     }
 ];
 
+const rowCenter = Math.floor(ROW_COUNT / 2);
+const columnCenter = Math.floor(COLUMN_COUNT / 2);
+
 const initialState = {
     sidebarElements,
     boxElements: [],
-    dropable: {'0-0': 0-0},
+    dropable: {[`${rowCenter}-${columnCenter}`]: `${rowCenter}-${columnCenter}`},
     dropElements: []
 
 }
@@ -115,9 +119,9 @@ const reducer = (state=initialState, action) => {
             const dropElem = [...state.dropElements];
             const id = dropElem[dropElem.length - 1].dragId;
             const index = initState.findIndex(boxElem => boxElem.id === +id);
+            boxElements.length !== 0 && sideBarElem.push(initState[index]);
             boxElements.pop();
             
-            payload.dragElement && sideBarElem.push(initState[index]);
             sideBarElem = sideBarElem.sort((elem1, elem2) => elem1.id - elem2.id );
             
             dropElem.pop();

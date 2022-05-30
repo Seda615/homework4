@@ -4,7 +4,7 @@ import { dropElementsSelector, dropableSelector } from "../../store/selectors";
 import Box from "./Box";
 import './style.css'
 
-function Boxes({drop, boxElements}) {
+function Boxes({drop, boxElements, dragElement}) {
 
     const dropElements = useSelector(dropElementsSelector);
     const dropable = useSelector(dropableSelector);
@@ -23,7 +23,7 @@ function Boxes({drop, boxElements}) {
     }
 
     const renderBox = (i, j) => {
-        if (dropable[`${i}-${j}`] !== undefined) {
+        if (dropable[`${i}-${j}`] !== undefined && dragElement !== null) {
             return (
                 <Box
                     dropElements={dropElements}
